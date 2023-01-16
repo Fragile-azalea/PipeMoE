@@ -1,0 +1,29 @@
+diff --git a/tutel/examples/helloworld_ddp.py b/tutel/examples/helloworld_ddp.py
+index 49c8081..8cb7c52 100755
+--- a/tutel/examples/helloworld_ddp.py
++++ b/tutel/examples/helloworld_ddp.py
+@@ -11,6 +11,7 @@ import torch.distributed as dist
+ from torch import nn
+ import argparse
+ 
++from solver import solve_k
+ from tutel import system
+ from tutel import moe as tutel_moe
+ 
+@@ -27,7 +28,6 @@ parser.add_argument('--num_local_experts', type=int, default=2)
+ parser.add_argument('--dtype', type=str, default='float32')
+ parser.add_argument('--fp32_gate', default=False, action='store_true')
+ parser.add_argument('--top', type=int, default=2)
+-parser.add_argument('--a2a_ffn_overlap_degree', type=int, default=1)
+ parser.add_argument('--num_steps', type=int, default=100)
+ parser.add_argument('--device', type=str, default='cuda' if torch.cuda.is_available() else 'cpu')
+ args = parser.parse_args()
+@@ -42,7 +42,7 @@ model_dim = args.model_dim
+ hidden_size = args.hidden_size
+ num_local_experts = args.num_local_experts
+ top_value = args.top
+-a2a_ffn_overlap_degree = args.a2a_ffn_overlap_degree
++a2a_ffn_overlap_degree = solve(batch_size, num_tokens, model_dim, hidden_size, dist_world_size, top_value, float(os.environ.get('CAP_FACTOR', 1.0)), 'rtx2080ti', '100GbIB')
+ device = parallel_env.local_device
+ 
+ if args.dtype == 'float32':
